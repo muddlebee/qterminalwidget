@@ -34,11 +34,23 @@ void QConsoleWidget::OnChildStarted()
 void QConsoleWidget::OnChildStdOutWrite(QString szOutput)
 {
 #ifdef Q_OS_WIN32
-    while (textCursor().position() > fixedPosition) {
-        textCursor().deletePreviousChar();
+    QString content;
+
+    if (fixedPosition != 0) {
+        content = szOutput.right(szOutput.count() - szOutput.indexOf('\n') - 1);
+    } else {    
+        content = szOutput;
     }
-#endif
+
+    if (content.startsWith("\f\r\n")) {
+        clear();
+        insertPlainText(content.right(content.count() - 3));
+    } else {
+        insertPlainText(content);
+    }
+#else
     insertPlainText(szOutput);
+#endif
     fixedPosition = textCursor().position();
 }
 
