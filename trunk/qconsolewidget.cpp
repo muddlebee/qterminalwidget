@@ -12,6 +12,7 @@ QConsoleWidget::QConsoleWidget(QWidget *parent) : QTextEdit(parent)
     p.setColor(QPalette::Base, QColor("#D35800"));
     this->setPalette(p);*/
 
+    fixedPosition = 0;
     redirect = new CRedirect();
     connect(redirect, SIGNAL(OnChildStdOutWrite(QString)), this, SLOT(OnChildStdOutWrite(QString)));
     connect(redirect, SIGNAL(OnChildStarted()), this, SLOT(OnChildStarted()));
@@ -32,7 +33,12 @@ void QConsoleWidget::OnChildStarted()
 
 void QConsoleWidget::OnChildStdOutWrite(QString szOutput)
 {
-    append(szOutput);
+#ifdef Q_OS_WIN32
+    while (textCursor().position() > fixedPosition) {
+        textCursor().deletePreviousChar();
+    }
+#endif
+    insertPlainText(szOutput);
     fixedPosition = textCursor().position();
 }
 
