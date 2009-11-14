@@ -18,9 +18,10 @@ CRedirect::~CRedirect()
 bool CRedirect::StartChildProcess(bool bShowChildWindow)
 {
     process = new QProcess();
+    process->setProcessChannelMode(QProcess::MergedChannels);
 
-    connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(readyReadStandardOutput()));
     connect(process, SIGNAL(readyReadStandardError()), this, SLOT(readyReadStandardError()));
+    connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(readyReadStandardOutput()));
 #ifdef Q_OS_WIN32
     process->start("cmd.exe");
 #else
@@ -60,6 +61,7 @@ void CRedirect::WriteChildStdIn(QString szInput)
  void CRedirect::readyReadStandardOutput()
  {
      QString str = process->readAllStandardOutput();
+
      emit OnChildStdOutWrite(str);
  }
 
